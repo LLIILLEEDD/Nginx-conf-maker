@@ -102,7 +102,6 @@ server {
     listen {listen};
     server_name {server_name};
     root {root};
-    # ... другие параметры ...
 }
 ```
 ---

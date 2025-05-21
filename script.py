@@ -44,7 +44,7 @@ def reload_nginx(count):
         return f"Nginx did not reload, because {count} files were updated"
     else:
         try:
-            check_conf = subprocess.run(["nginx", "-t"], 
+            check_conf = subprocess.run(["sudo", "nginx", "-t"], 
                                         text=True, 
                                         capture_output=True)
             if check_conf.returncode == 0:
@@ -54,9 +54,9 @@ def reload_nginx(count):
                 if reload_proc.returncode == 0:
                     return f"Nginx reloaded. {count} files updated/created"
                 else:
-                    return f"Failed to reload nginx: {reload_proc}"
+                    return f"Failed to reload nginx: {reload_proc.stderr}"
             else:
-                return f"Nginx configuration test failed: {check_conf}"   
+                return f"Nginx configuration test failed: {check_conf.stderr}"   
         except Exception as e: 
             return f"Error checking or restarting nginx. Nginx did not reload. Exception: {e}"
 

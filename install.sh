@@ -13,33 +13,13 @@ sudo cp template.conf /opt/nginx-conf-maker
 # Делаем скрипт исполняемым
 sudo chmod +x /opt/nginx-conf-maker/script.py
 
-# Назначаем группу nginx для /opt/nginx-conf-maker и файлов внутри
-sudo chown -R :nginx /opt/nginx-conf-maker
-sudo chmod  775 /opt/nginx-conf-maker
-sudo chmod  775 /opt/nginx-conf-maker/script.py
-sudo chmod  664 /opt/nginx-conf-maker/params.ini
-sudo chmod  664 /opt/nginx-conf-maker/template.conf
-
 # Назначаем группу nginx для /storage/www и файлов внутри
 sudo chown -R :nginx /storage/www
 sudo chmod -R 775 /storage/www
 
-# Меняем права на директории и файлы которые нужны для проверки конфигурации nginx -t
-sudo chown -R :nginx /var/log/nginx/
-sudo chmod -R 771 /var/log/nginx/
-
-sudo chown -R :nginx /etc/nginx/
-sudo chmod 775 /etc/nginx/
+# Назначаем группу nginx для conf.d для создания файлов
+sudo chown -R :nginx /etc/nginx/conf.d/
 sudo chmod 775 /etc/nginx/conf.d/
-
-sudo chown  :nginx /run/nginx.pid 
-sudo chmod 774 /run/nginx.pid 
-
-sudo chown -R :nginx /var/lib/nginx
-sudo chmod -R 750 /var/lib/nginx
-
-sudo chown :nginx /run/nginx.pid
-sudo chmod 662 /run/nginx.pid
 
 # Снимаем ограничение по портам для группы nginx
 sudo setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
@@ -55,6 +35,18 @@ sudo chmod 440 "$NGINX_SUDOERS_FILE"
 
 # Проверяем синтаксис (если ошибка - скрипт упадет благодаря set -e)
 sudo visudo -cf "$NGINX_SUDOERS_FILE"
+
+# Создаем отдельный sudoers-файл для проверки конфигурации
+NGINX_TEST_SUDOERS="/etc/sudoers.d/nginx-test"
+
+# Добавляем правило: разрешаем nginx -t
+echo '%nginx ALL=(root) NOPASSWD: /usr/sbin/nginx -t' | sudo tee "$NGINX_TEST_SUDOERS" >/dev/null
+
+# Устанавливаем строгие права
+sudo chmod 440 "$NGINX_TEST_SUDOERS"
+
+# Проверяем синтаксис
+sudo visudo -cf "$NGINX_TEST_SUDOERS"
 
 # Создаём systemd unit-файл
 sudo tee /etc/systemd/system/nginx-conf-maker.service > /dev/null <<EOF
