@@ -98,11 +98,11 @@
 ## Пример шаблона (`template.conf`)
 
 ```nginx
-server {
+server {{
     listen {listen};
     server_name {server_name};
     root {root};
-}
+}}
 ```
 ---
 
