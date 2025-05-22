@@ -2,6 +2,12 @@
 
 set -e
 
+# Проверка на запуск от root
+if [[ "$EUID" -ne 0 ]]; then
+  echo "Запуск только через sudo"
+  exit 1
+fi
+
 # Создаём директорию для скрипта
 mkdir -p /opt/nginx-conf-maker
 
